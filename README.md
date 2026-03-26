@@ -1,8 +1,8 @@
 [Readme.md](https://github.com/user-attachments/files/26265102/Readme.md)
 # Readme.md  
   
-ASSUMPTION - You are here because you have alread  
-If this is not true - take the time to read  “[What are Humans Going to Do After Ai & Robots](https://x.com/SamGoodmanFSC/status/2031995202181947576?s=20)”  
+ASSUMPTION - You have already read the vision doc.  
+If not, please do  “[What are Humans Going to Do After Ai & Robots](https://x.com/SamGoodmanFSC/status/2031995202181947576?s=20)”  
   
   
 # TFSC’s Edventurefy & EI Open Source  
