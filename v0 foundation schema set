@@ -1,0 +1,573 @@
+v0 foundation schema set.
+
+
+design-rules.md)
+1. Preserve source truth.
+2. Translate, do not erase.
+3. Allow many-to-one mappings.
+4. Multiple valid evidence modes are first-class — self, peer, facilitator, project, observation, Challenge Day, etc. No-tech is native.
+5. Mastery can surface on non-linear or unexpected paths — the Skills Map supports this.
+6. Binary mastery only — keeps decisions clear and portable.
+7. Designed for life-long skill acquisition, not test-and-forget or pure job placement.
+8. Foundation first — Edventurefy/quests plug in on top.
+
+
+repository.schema.json
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ei.dev/schemas/v0/repository.schema.json",
+  "title": "Repository Item",
+  "description": "Stores source framework, standard, objective, version, provenance, jurisdiction, subject, and age band.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "repository_item_id",
+    "source_framework",
+    "source_type",
+    "source_text",
+    "source_version",
+    "subject_domains",
+    "age_bands",
+    "jurisdictions",
+    "status"
+  ],
+  "properties": {
+    "repository_item_id": {
+      "type": "string",
+      "pattern": "^repo_[a-zA-Z0-9._-]+$"
+    },
+    "source_framework": {
+      "type": "string",
+      "enum": ["Common Core", "NGSS", "IB", "Oxford", "Other"]
+    },
+    "source_framework_other": {
+      "type": ["string", "null"]
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["standard", "objective", "learning_goal", "content_excerpt", "competency", "other"]
+    },
+    "source_document_title": {
+      "type": ["string", "null"]
+    },
+    "source_document_section": {
+      "type": ["string", "null"]
+    },
+    "source_identifier": {
+      "type": ["string", "null"],
+      "description": "Original framework code or identifier, if any."
+    },
+    "source_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_plain_language_summary": {
+      "type": ["string", "null"]
+    },
+    "source_version": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": ["string", "null"],
+      "format": "uri"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["import_method"],
+      "properties": {
+        "import_method": {
+          "type": "string",
+          "enum": ["manual", "bulk_import", "api", "derived_from_doc", "other"]
+        },
+        "imported_by": {
+          "type": ["string", "null"]
+        },
+        "imported_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "notes": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "jurisdictions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "subject_domains": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "age_bands": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "grade_bands": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "language": {
+      "type": "string",
+      "default": "en"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "deprecated"]
+    },
+    "linked_skill_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^skill_[a-zA-Z0-9._-]+$"
+      },
+      "uniqueItems": true
+    }
+  }
+}
+
+
+skill.schema.json
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ei.dev/schemas/v0/skill.schema.json",
+  "title": "Skill",
+  "description": "Translates source objectives into plain-language capabilities.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "skill_id",
+    "label",
+    "plain_language_definition",
+    "skill_type",
+    "source_links",
+    "status"
+  ],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "pattern": "^skill_[a-zA-Z0-9._-]+$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plain_language_definition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skill_type": {
+      "type": "string",
+      "enum": ["hard", "soft", "hybrid"]
+    },
+    "domain": {
+      "type": "string"
+    },
+    "subdomain": {
+      "type": ["string", "null"]
+    },
+    "canonical_statement": {
+      "type": ["string", "null"],
+      "description": "Optional normalized phrasing used across frameworks."
+    },
+    "source_links": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repository_item_id", "relationship_type"],
+        "properties": {
+          "repository_item_id": {
+            "type": "string",
+            "pattern": "^repo_[a-zA-Z0-9._-]+$"
+          },
+          "relationship_type": {
+            "type": "string",
+            "enum": ["derived_from", "aligned_to", "related_to", "example_of"]
+          },
+          "notes": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "prerequisite_skill_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^skill_[a-zA-Z0-9._-]+$"
+      },
+      "uniqueItems": true
+    },
+    "equivalent_skill_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^skill_[a-zA-Z0-9._-]+$"
+      },
+      "uniqueItems": true
+    },
+    "example_contexts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "notes": {
+      "type": ["string", "null"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "deprecated"]
+    },
+    "linked_milestone_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ms_[a-zA-Z0-9._-]+$"
+      },
+      "uniqueItems": true
+    }
+  }
+}
+
+
+milestone.schema.json
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ei.dev/schemas/v0/milestone.schema.json",
+  "title": "Milestone",
+  "description": "Defines objective proof points for skill mastery.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "milestone_id",
+    "skill_id",
+    "statement",
+    "observable_behavior",
+    "decision_type",
+    "pass_threshold",
+    "evidence_modes",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "milestone_id": {
+      "type": "string",
+      "pattern": "^ms_[a-zA-Z0-9._-]+$"
+    },
+    "skill_id": {
+      "type": "string",
+      "pattern": "^skill_[a-zA-Z0-9._-]+$"
+    },
+    "statement": {
+      "type": "string",
+      "description": "Should complete the phrase: Learner can..."
+    },
+    "observable_behavior": {
+      "type": "string"
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": ["binary"],
+      "description": "v0 is binary only: demonstrated or not_yet."
+    },
+    "pass_threshold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_text"],
+      "properties": {
+        "rule_text": {
+          "type": "string",
+          "description": "Human-readable pass rule."
+        },
+        "minimum_score": {
+          "type": ["number", "null"]
+        },
+        "rubric_reference": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "evidence_modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "artifact",
+          "oral_explanation",
+          "written_explanation",
+          "demonstration",
+          "observation",
+          "peer_feedback",
+          "facilitator_feedback",
+          "quiz",
+          "project",
+          "simulation",
+          "reflection",
+          "portfolio"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "allowed_variations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Explicit room for multiple valid routes to proof."
+    },
+    "four_box_criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accuracy": { "type": "boolean", "default": true },
+        "reasoning": { "type": "boolean", "default": true },
+        "application": { "type": "boolean", "default": true },
+        "representation": { "type": "boolean", "default": true }
+      }
+    },
+    "prerequisite_milestone_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ms_[a-zA-Z0-9._-]+$"
+      },
+      "uniqueItems": true
+    },
+    "portability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "portable": { "type": "boolean", "default": true },
+        "portability_notes": { "type": ["string", "null"] }
+      }
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "deprecated"]
+    }
+  }
+}
+
+
+skills-map-node.schema.json
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ei.dev/schemas/v0/skills-map-node.schema.json",
+  "title": "Skills Map Node",
+  "description": "Represents visible progression units.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "node_id",
+    "node_type",
+    "ref_id",
+    "label",
+    "status"
+  ],
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^node_[a-zA-Z0-9._-]+$"
+    },
+    "node_type": {
+      "type": "string",
+      "enum": ["skill", "milestone", "cluster", "level", "pathway"]
+    },
+    "ref_id": {
+      "type": "string",
+      "description": "Referenced skill_id, milestone_id, or internal grouping ID."
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": ["string", "null"]
+    },
+    "pathway_id": {
+      "type": ["string", "null"]
+    },
+    "visibility_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_visible": { "type": "boolean", "default": true },
+        "show_when_unlocked": { "type": "boolean", "default": false }
+      }
+    },
+    "position_hint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": ["number", "null"] },
+        "y": { "type": ["number", "null"] }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "deprecated"]
+    }
+  }
+}
+
+
+skills-map-edge.schema.json
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ei.dev/schemas/v0/skills-map-edge.schema.json",
+  "title": "Skills Map Edge",
+  "description": "Connects progression logic.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "edge_id",
+    "from_node_id",
+    "to_node_id",
+    "relationship_type",
+    "status"
+  ],
+  "properties": {
+    "edge_id": {
+      "type": "string",
+      "pattern": "^edge_[a-zA-Z0-9._-]+$"
+    },
+    "from_node_id": {
+      "type": "string",
+      "pattern": "^node_[a-zA-Z0-9._-]+$"
+    },
+    "to_node_id": {
+      "type": "string",
+      "pattern": "^node_[a-zA-Z0-9._-]+$"
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": [
+        "prerequisite",
+        "supports",
+        "optional_path",
+        "equivalent_path",
+        "unlocks",
+        "part_of"
+      ]
+    },
+    "notes": {
+      "type": ["string", "null"]
+    },
+    "strength": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "deprecated"]
+    }
+  }
+}
+
+
+Golden Path v0 Example Set
+Example A: Hard Skill
+Subject: MathSource mix: Common Core + Oxford + IBCanonical skill: Solve and explain one-step linear equationsWhy good for v0: clean, observable, portable, low ambiguity
+Flow
+* Source standard/content: solve simple linear equations, show working, interpret variables
+* Derived skill: learner can solve and explain one-step linear equations in context
+* Milestones:
+    * isolate the variable correctly
+    * perform inverse operation correctly
+    * explain why the operation preserves equality
+    * solve a one-step equation in a word problem
+* Generated quest: “Crack the Code” equation mission
+* Evidence submission: worked solution + short oral or written explanation
+* Mastery decision: demonstrated / not_yet
+* Portability record: verified mastery of one-step linear equations
+Example B: Soft Skill
+Subject: Human development / transferable skillSource mix: IB + Oxford + school SEL/objective language + TFSC framingCanonical skill: Adapt response when conditions changeWhy good for v0: proves many-to-one mapping and multiple valid evidence modes
+Flow
+* Source standard/content: reflect, adjust, respond to feedback, persist through challenge
+* Derived skill: learner can adapt strategy when the original approach is not working
+* Milestones:
+    * identify that conditions changed
+    * name at least one alternative strategy
+    * try a new strategy appropriately
+    * reflect on what changed and why
+* Generated quest: “Mission Shift” team challenge with changed constraints midway
+* Evidence submission: facilitator observation + peer feedback + learner reflection
+* Mastery decision: demonstrated / not_yet
+* Portability record: verified adaptability in changing conditions
+
+v0 Design Rules
+1. Preserve source
+    * original text stays intact in Repository
+2. Translate, do not erase
+    * Skill layer normalizes without deleting source differences
+3. Allow many-to-one mappings
+    * multiple repository items can point to one skill
+4. Allow multiple valid evidence modes
+    * milestone proof is flexible, threshold is not
+5. Reward demonstrated mastery, not one mandated path
+    * equivalent paths are modeled in edges and evidence modes
+6. Keep v0 binary
+    * mastery decision is only demonstrated or not_yet
+7. Keep Edventurefy secondary
+    * foundation first, experience layer plugs in later
+
+Best v0 package structure
+
+/schemas/v0/
+  repository.schema.json
+  skill.schema.json
+  milestone.schema.json
+  skills-map-node.schema.json
+  skills-map-edge.schema.json
+
+/examples/golden-path-v0/
+  hard-skill-linear-equations/
+    repository-items.json
+    skills.json
+    milestones.json
+    skills-map-nodes.json
+    skills-map-edges.json
+    quest-example.md
+    evidence-example.json
+    mastery-record-example.json
+    portability-record-example.json
+
+  soft-skill-adaptability/
+    repository-items.json
+    skills.json
+    milestones.json
+    skills-map-nodes.json
+    skills-map-edges.json
+    quest-example.md
+    evidence-example.json
+    mastery-record-example.json
+    portability-record-example.json
+
+Final v0 framing
+v0 is the shared capability foundation:Repository → Skill → Milestone → Skills Map
